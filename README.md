@@ -57,24 +57,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** 
-- **Returns:**
-- **When it has nothing:**
+- **What it does: searches the listing file and returns a match**
+- **Inputs: description, size, and max_price**
+- **Returns: an array/list of items that mtach the keyword and cost**
+- **When it has nothing: it should return an empty string**
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does: it should match items in the listings together and suggest a combination of them**
+- **Inputs: new_item and wardrobe**
+- **Returns: an array that contains items that match the wardrobe criteria**
+- **When it has nothing: empty string**
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does: write a short caption someone would actually post**
+- **Inputs: outfit, new_item**
+- **Returns: a caption based on the outfit and the new_item**
+- **When it has nothing: empty string**
 
 ---
 
