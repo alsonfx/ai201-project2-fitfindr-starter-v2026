@@ -78,8 +78,44 @@ def search_listings(
     Test it from a terminal before you move on:
         python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
     """
-    # TODO: replace this with your implementation
-    return []
+    import re
+    listings = load_listings()
+
+    # 1. Filter by max_price
+    if max_price is not None:
+        listings = [item for item in listings if item['price'] <= max_price]
+
+    # 2. Filter by size
+    if size is not None:
+        size_lower = size.lower()
+        filtered = []
+        for item in listings:
+            item_size = item['size'].lower()
+            # Split sizes by non-word chars to handle cases like "S/M" -> ["s", "m"]
+            tokens = re.findall(r'[a-z0-9]+', item_size)
+            if size_lower in tokens or size_lower == item_size:
+                filtered.append(item)
+        listings = filtered
+
+    # 3. Score by keyword overlap with description
+    desc_tokens = set(re.findall(r'\w+', description.lower()))
+    scored_listings = []
+
+    for item in listings:
+        # Combine text fields for keyword matching
+        text_to_search = (item['title'] + " " + item['description'] + " " + " ".join(item.get('style_tags', []))).lower()
+        item_tokens = set(re.findall(r'\w+', text_to_search))
+        
+        score = len(desc_tokens.intersection(item_tokens))
+        
+        if score > 0:
+            scored_listings.append((score, item))
+
+    # 4. Sort by score (descending)
+    scored_listings.sort(key=lambda x: x[0], reverse=True)
+
+    # 5. Return at most config.SEARCH_RESULT_LIMIT items
+    return [item for score, item in scored_listings][:config.SEARCH_RESULT_LIMIT]
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
@@ -112,8 +148,27 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    item_name = new_item.get('title', 'this item')
+    item_desc = new_item.get('description', '')
+    
+    items = wardrobe.get('items', [])
+    if not items:
+        prompt = (
+            f"I am considering buying {item_name}. {item_desc}\n"
+            "I don't have anything in my wardrobe yet. "
+            "Could you give me some general styling advice and suggest an outfit or two "
+            "I could build around this item?"
+        )
+    else:
+        wardrobe_list = "\n".join(f"- {w.get('name', 'item')} ({w.get('category', '')})" for w in items)
+        prompt = (
+            f"I am considering buying {item_name}. {item_desc}\n"
+            "Here is what I currently have in my wardrobe:\n"
+            f"{wardrobe_list}\n\n"
+            "Can you suggest one or two specific outfits combining the new item with pieces I already own?"
+        )
+        
+    return generate(prompt)
 
 
 # ── Tool 3: create_fit_card ───────────────────────────────────────────────────
@@ -152,5 +207,21 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    if not outfit or not outfit.strip():
+        return "I couldn't create a fit card because no outfit suggestion was provided."
+
+    item_name = new_item.get('title', 'this item')
+    price = new_item.get('price', 0.0)
+    platform = new_item.get('platform', 'unknown platform')
+
+    prompt = (
+        f"Write a short social media caption (2-4 sentences) about finding this item:\n"
+        f"Item: {item_name}\n"
+        f"Price: ${price:.2f}\n"
+        f"Platform: {platform}\n\n"
+        f"The outfit I'm planning to wear it with: {outfit}\n\n"
+        "Make it sound like a real person posting about their thrift find. "
+        "You must mention the item, its price, and the platform once each, and be specific about the vibe."
+    )
+
+    return generate(prompt)
