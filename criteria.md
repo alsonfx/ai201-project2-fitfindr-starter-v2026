@@ -25,6 +25,7 @@ Given a query that matches at least one listing, the agent completes all three
 tool calls and returns a fit card — in at least 4 of 5 tries.
 
 **Why this target:**
+
 <!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
@@ -37,12 +38,15 @@ Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
 **Why this target:**
+
 <!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
      about this path? -->
 
 ---
 
 ## 3. Something about state
+
+Given a valid search query that returns an item, the exact item_id returned by the search_listing tool is identical to the item_id received as an argument by the suggest_outfit tool in 5 out of 5 tries.
 
 <!-- YOU WRITE THIS ONE.
 
@@ -54,15 +58,13 @@ Given a query that matches no listings, the agent stops before calling
      compares session["selected_item"] against what actually reached
      suggest_outfit is the shape you're after. -->
 
-
-
 **Why this target:**
-
-
 
 ---
 
 ## 4. Something about the fit card
+
+Across 5 different selected items, the generated fit card must always include the item's brand, the item's exact price, and exactly one suggested accessory, with a total output length of strictly under 100 words (5 of 5 tries).
 
 <!-- YOU WRITE THIS ONE.
 
@@ -75,15 +77,13 @@ Given a query that matches no listings, the agent stops before calling
      sentence? A card longer than a caption anyone would post? Any of those can
      be turned into a number. -->
 
-
-
 **Why this target:**
-
-
 
 ---
 
 ## 5. Your choice
+
+Given a complex query that requires two distinct tools (e.g.,  "find me a read dress and check if a style is available today"), the app successfully routes the first part of the query to the search_listing tool and the second part to the suggest_outfit tool, rather than trying to handle both with a single tool, in at least 4 out of 5 tries.
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -92,11 +92,7 @@ Given a query that matches no listings, the agent stops before calling
      search respects a price ceiling — anything, as long as it names a number
      or an observable outcome. -->
 
-
-
 **Why this target:**
-
-
 
 ---
 
