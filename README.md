@@ -91,13 +91,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule: if search_listing returns an empty strin put a message in the session and stop, else take the first result and go to suggest_outfit.**
 
 **Where it lives:** `agent.py::run_agent`
 
 **How the query is parsed:** 
 
-**What moves through the session:** 
+**What moves through the session:**
 
 ---
 
@@ -112,24 +112,20 @@
 
 ```
 $ python app.py ask '...'
-
 ```
 
 **The three tools, tested one at a time**
 
 ```
 $ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
-
 ```
 
 ```
 $ python -c "from tools import suggest_outfit; ..."
-
 ```
 
 ```
 $ python -c "from tools import create_fit_card; ..."
-
 ```
 
 ---
@@ -244,7 +240,7 @@ that produced it:
 
 ```
 
-**On the MCP move:** 
+**On the MCP move:**
 
 ---
 
