@@ -190,47 +190,99 @@ Scored the ultimate 90s off-duty vibe with these Vintage Levi's 501 Jeans in a d
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 | --------- | ------ | ----- | ----- | ----- | ----- | ----- | ------- |
-| 1.        |        |       |       |       |       |       |         |
-| 2.        |        |       |       |       |       |       |         |
-| 3.        |        |       |       |       |       |       |         |
-| 4.        |        |       |       |       |       |       |         |
-| 5.        |        |       |       |       |       |       |         |
+| 1. matching query completes | 4/5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | 5/5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. state tracking verification | 5/5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit card format test | 5/5 | FAIL | FAIL | FAIL | FAIL | FAIL | MISSED (0/5) |
+| 5. complex query handling | 4/5 | FAIL | FAIL | FAIL | FAIL | FAIL | MISSED (0/5) |
 
-**Real output from one try**, pasted as text, naming the file and function
-that produced it:
+**Real output from one try for each criterion**, pasted as text, produced by `run_eval.py::main` calling `agent.py::run_agent`:
 
-```
+```text
+### 1. matching query completes
+- Query: `vintage graphic tee under $30`
+- Wardrobe: example
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+
+Trace:
+[1] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Mesh Long-Sleeve Top — Black … +7 more
+[2] suggest_outfit
+      in:  dict with keys: item, wardrobe
+      out: Here are two specific outfit ideas using the Y2K butterfly baby tee and pieces from your current wardrobe, lea…
+[3] create_fit_card
+      in:  dict with keys: outfit, item
+      out: Found this absolute dream of a Y2K butterfly baby tee on Depop for just $18.00 and I am officially in my early…
+
+### 2. impossible query stops early
+- Query: `designer ballgown size XXS under $5`
+- Wardrobe: example
+- stopped early: yes — No matching items found. Please try adjusting your search terms, broadening the size, or increasing the price limit.
+
+Trace:
+[1] search_listings
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+
+### 3. state tracking verification
+- Query: `Y2K pants`
+- Wardrobe: example
+- stopped early: no
+- selected_item: Low-Rise Cargo Pants — Khaki ($27.0, poshmark)
+
+Trace:
+[1] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 8 items: Low-Rise Cargo Pants — Khaki, Y2K Baby Tee — Butterfly Print, Corduroy Wide-Leg Pants — Rust … +5 more
+[2] suggest_outfit
+      in:  dict with keys: item, wardrobe
+      out: Here are two outfit formulas combining the new Y2K low-rise khaki cargo pants with pieces already in your wardrobe...
+
+### 4. fit card format test
+- Query: `vintage graphic tee`
+- Wardrobe: example
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+
+Fit card:
+Just scored the ultimate Y2K butterfly baby tee on Depop for only $18, and I am obsessed! Can't wait to style the sweet butterfly graphic with baggy denim and chunky sneakers for the ultimate Y2K streetwear vibe. 🦋✨
+
+### 5. complex query handling
+- Query: `find me a red dress and check if a style is available today`
+- Wardrobe: example
+- stopped early: no
+- selected_item: Oversized College Crewneck — Faded Red ($21.0, thredup)
+
+Trace:
+[1] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Oversized College Crewneck — Faded Red, Oversized Flannel Shirt — Plaid Red/Black, Graphic Tee — 2003 Tour Bootleg Style … +7 more
+[2] suggest_outfit
+      in:  dict with keys: item, wardrobe
+      out: Based on your current wardrobe, the **Oversized College Crewneck in Faded Red** will fit right in because you …
+[3] create_fit_card
+      in:  dict with keys: outfit, item
+      out: Scored this faded red Oversized College Crewneck on thredUp for just $21.00, and it’s already doing all the he…
 ```
 
 ---
 
 ## Verdicts and Diagnoses
 
-<!-- MET or MISSED per criterion against LAST UNIT's target, plus a sentence on
-     how you decided.
-
-     Then, for every miss: which of the four places it happened — a tool, the
-     loop's branch, the session, or the model's output — AND the mechanism.
-
-     Not a diagnosis:  "The fit card was bad."
-     A diagnosis:      "The fit card criterion missed on 2 of 5 items. Both had
-                        an empty brand field. My prompt puts the brand in the
-                        first sentence, so the card opened with a blank and read
-                        like a fragment. The tool worked; the prompt assumed a
-                        field that isn't always there."
-
-     Look for a pattern. Three misses on the same tool is one problem, not
-     three. -->
-
 | # | Criterion | Target | Verdict | How I decided |
 | - | --------- | ------ | ------- | ------------- |
-| 1 |           |        |         |               |
-| 2 |           |        |         |               |
-| 3 |           |        |         |               |
-| 4 |           |        |         |               |
-| 5 |           |        |         |               |
+| 1 | matching query completes | 4/5 | MET (5/5) | The agent completed all tool calls and generated a fit card for a valid search query every time. |
+| 2 | impossible query stops early | 5/5 | MET (5/5) | The agent immediately halted and returned the expected error string after receiving an empty list from `search_listings`. |
+| 3 | state tracking verification | 5/5 | MET (5/5) | The trace confirms the exact `item` received by `search_listings` was passed into `suggest_outfit` correctly. |
+| 4 | fit card format test | 5/5 | MISSED (0/5) | The fit card failed to consistently include exactly one accessory and the item's brand because the prompt didn't strictly mandate these fields, and the brand was missing from the item listing string anyway. |
+| 5 | complex query handling | 4/5 | MISSED (0/5) | The agent failed to route distinct parts of the query to different tools; it just forwarded the entire complex query verbatim into the `search_listings` tool description field. |
 
 **Diagnoses**
+
+1. **Criterion 4 (fit card format test) missed:** The model's output was the problem. The prompt for `create_fit_card` didn't strongly enforce the inclusion of the brand and exactly one accessory. Furthermore, the dataset schema doesn't explicitly contain a `brand` field, so the model had to guess or omit it, resulting in failures.
+2. **Criterion 5 (complex query handling) missed:** The loop's branch/routing was the problem. The agent's parsing logic jams the entire user query directly into the `description` field for `search_listings`. It has no logic to decompose a query and selectively route instructions to `suggest_outfit` or avoid searching for non-clothing questions.
 
 ---
 

@@ -213,15 +213,21 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     item_name = new_item.get('title', 'this item')
     price = new_item.get('price', 0.0)
     platform = new_item.get('platform', 'unknown platform')
+    brand = new_item.get('brand') or 'vintage/unbranded'
 
     prompt = (
-        f"Write a short social media caption (2-4 sentences) about finding this item:\n"
+        f"Write a short social media caption about finding this item:\n"
         f"Item: {item_name}\n"
+        f"Brand: {brand}\n"
         f"Price: ${price:.2f}\n"
         f"Platform: {platform}\n\n"
         f"The outfit I'm planning to wear it with: {outfit}\n\n"
         "Make it sound like a real person posting about their thrift find. "
-        "You must mention the item, its price, and the platform once each, and be specific about the vibe."
+        "CRITICAL CONSTRAINTS:\n"
+        "1. You MUST include the exact price.\n"
+        "2. You MUST mention the brand (if it's vintage/unbranded, say that).\n"
+        "3. You MUST suggest EXACTLY ONE accessory to wear with it.\n"
+        "4. The entire output MUST be strictly under 100 words."
     )
 
     return generate(prompt)
