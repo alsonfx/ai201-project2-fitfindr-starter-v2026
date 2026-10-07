@@ -106,9 +106,46 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         than a stack trace. The import is already at the top of this file.
     """
     session = new_session(query, wardrobe)
+    import re
 
-    # TODO: delete these two lines and build the loop.
-    session["error"] = "The planning loop isn't built yet — see the TODO in agent.py."
+    count = 0
+    while True:
+        count += 1
+        trace.check_iterations(count)
+
+        # 3. Parse the query
+        size_match = re.search(r'size\s+([a-zA-Z0-9/]+)', query, re.IGNORECASE)
+        size = size_match.group(1) if size_match else None
+        
+        price_match = re.search(r'(?:under|<)\s*\$?\s*(\d+(?:\.\d{2})?)', query, re.IGNORECASE)
+        max_price = float(price_match.group(1)) if price_match else None
+        
+        description = query
+        session["parsed"] = {
+            "description": description,
+            "size": size,
+            "max_price": max_price
+        }
+
+        # 4. Call search_listings
+        session["search_results"] = search_listings(session["parsed"]["description"], size=session["parsed"]["size"], max_price=session["parsed"]["max_price"])
+
+        if not session["search_results"]:
+            session["error"] = "No matching items found. Please try adjusting your search terms, broadening the size, or increasing the price limit."
+            break
+
+        # 5. Choose an item
+        session["selected_item"] = session["search_results"][0]
+
+        # 6. Call suggest_outfit
+        session["outfit_suggestion"] = suggest_outfit(session["selected_item"], session["wardrobe"])
+
+        # 7. Call create_fit_card
+        session["fit_card"] = create_fit_card(session["outfit_suggestion"], session["selected_item"])
+
+        # Loop finishes
+        break
+
     return session
 
 
@@ -124,6 +161,11 @@ def _show(session: dict) -> None:
     print(f"  found:    {item.get('title')} — ${item.get('price')} on {item.get('platform')}")
     print(f"  outfit:   {session['outfit_suggestion']}")
     print(f"  fit card: {session['fit_card']}")
+    
+    print("\n--- Final Session State ---")
+    import pprint
+    pprint.pprint(session)
+    print("---------------------------\n")
 
 
 if __name__ == "__main__":
