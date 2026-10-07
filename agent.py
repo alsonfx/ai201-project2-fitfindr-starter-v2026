@@ -127,8 +127,13 @@ def run_agent(query: str, wardrobe: dict) -> dict:
             "max_price": max_price
         }
 
-        # 4. Call search_listings
-        session["search_results"] = search_listings(session["parsed"]["description"], size=session["parsed"]["size"], max_price=session["parsed"]["max_price"])
+        # 4. Call search_listings via MCP
+        from mcp_client import call_tool
+        session["search_results"] = call_tool("search_listings", {
+            "description": session["parsed"]["description"],
+            "size": session["parsed"]["size"],
+            "max_price": session["parsed"]["max_price"],
+        })
 
         if not session["search_results"]:
             session["error"] = "No matching items found. Please try adjusting your search terms, broadening the size, or increasing the price limit."
