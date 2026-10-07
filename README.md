@@ -249,14 +249,36 @@ that produced it:
 **Happy path**
 
 ```
+$ uv run app.py ask 'vintage graphic tee under $20' --trace
+[1] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Mesh Long-Sleeve Top — Black … +7 more
+[2] suggest_outfit
+      in:  dict with keys: item, wardrobe
+      out: Here are two specific outfit ideas using the Y2K Butterfly Baby Tee and pieces already in your wardrobe, leani…
+[3] create_fit_card
+      in:  dict with keys: outfit, item
+      out: Found the absolute holy grail Y2K Butterfly Baby Tee on Depop for just $18.00! Can't wait to style the ultimat…
+
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   Here are two specific outfit ideas using the Y2K Butterfly Baby Tee and pieces already in your wardrobe, leaning into that authentic early-2000s aesthetic...
+
+  Fit card: Found the absolute holy grail Y2K Butterfly Baby Tee on Depop for just $18.00! Can't wait to style the ultimate early-2000s streetwear look by pairing it with baggy dark-wash jeans, chunky sneakers, and a brown leather belt. It’s giving total effortless Y2K mall-rat energy and I am obsessed.
 ```
 
 **Empty search**
 
 ```
+$ uv run app.py ask 'ballgown' --trace
+[1] search_listings
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+
+  No matching items found. Please try adjusting your search terms, broadening the size, or increasing the price limit.
 ```
 
-**On the MCP move:**
+**On the MCP move:** The `search_listings` call output remained exactly the same because `mcp_client` unwraps the JSON structure transparently back to a python `list[dict]`.
 
 ---
 
