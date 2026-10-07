@@ -39,9 +39,8 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
-
----
+FitFindr takes a natural language query for an item of clothing, parses it, and searches a dataset of listings to find a match. If an item is found, it evaluates the user's existing wardrobe and suggests an outfit incorporating the new item. Finally, it creates a "fit card" with a catchy caption for social media. If no item matches the search query, it gracefully ends the session and suggests that the user adjust their query.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Tool Inventory
 
@@ -91,13 +90,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule: if search_listing returns an empty strin put a message in the session and stop, else take the first result and go to suggest_outfit.**
+**Branch rule:** If `search_listings` returns an empty list or nothing, put a message in the session and stop. Otherwise, take the first result and go to `suggest_outfit`.
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** 
+**How the query is parsed:** The query is parsed using regular expressions to extract `size` and `max_price`, while the original query string is used as the `description`.
 
-**What moves through the session:**
+**What moves through the session:** The parsed query parameters, the search results, the selected item, the user's wardrobe, the outfit suggestion, the fit card, and any error message generated during execution.
 
 ---
 
@@ -161,15 +160,15 @@ Scored the ultimate 90s off-duty vibe with these Vintage Levi's 501 Jeans in a d
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked the AI to modify `agent.py::run_agent` to pass values strictly through the `session` dictionary instead of directly between variables.
+- *What came back:* The AI refactored the function to read from and write to keys like `session["selected_item"]` and `session["outfit_suggestion"]`, along with adding a debug print of the session at the end of the `_show` function.
+- *What I changed:* I kept the AI's structural changes to ensure all state is testable and visible, ensuring the `fit_card` correctly referenced `session["outfit_suggestion"]`.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked the AI to ensure the empty-results error message was helpful rather than just "No results".
+- *What came back:* The AI provided: "No matching items found. Please try adjusting your search terms, broadening the size, or increasing the price limit."
+- *What I changed:* I accepted the exact string because it directly names the actionable steps the user could take to fix their query.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
@@ -201,7 +200,6 @@ Scored the ultimate 90s off-duty vibe with these Vintage Levi's 501 Jeans in a d
 that produced it:
 
 ```
-
 ```
 
 ---
@@ -251,13 +249,11 @@ that produced it:
 **Happy path**
 
 ```
-
 ```
 
 **Empty search**
 
 ```
-
 ```
 
 **On the MCP move:**
