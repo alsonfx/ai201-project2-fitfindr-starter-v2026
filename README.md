@@ -170,6 +170,12 @@ Scored the ultimate 90s off-duty vibe with these Vintage Levi's 501 Jeans in a d
 - *What came back:* The AI provided: "No matching items found. Please try adjusting your search terms, broadening the size, or increasing the price limit."
 - *What I changed:* I accepted the exact string because it directly names the actionable steps the user could take to fix their query.
 
+**Moment 3**
+
+- *What I asked for:* In Unit 4, I asked the AI to rewrite the `create_fit_card` prompt to strongly enforce my constraints: strict inclusion of the brand, exact price, exactly one accessory, and length strictly under 100 words.
+- *What came back:* The AI suggested structuring the prompt with a bolded "CRITICAL CONSTRAINTS" section, laying out the four requirements as a numbered list. It also smartly suggested dynamically adding "vintage/unbranded" if the brand field was None.
+- *What I changed:* I pasted the new prompt into my `tools.py` exactly as suggested, and it instantly bumped my evaluation results from a 0/5 MISSED to a 5/5 MET because the model actually respected the strongly formatted constraints.
+
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 3.
@@ -341,32 +347,27 @@ $ uv run app.py ask 'ballgown' --trace
 
      `python run_eval.py --label after` -->
 
-**What I changed:**
+**What I changed:** I rewrote the prompt for `create_fit_card` in `tools.py` to explicitly enforce the constraints under a "CRITICAL CONSTRAINTS" section. I instructed the model to always include the exact price, mention the brand (or state if it's vintage/unbranded), suggest exactly one accessory, and keep the output strictly under 100 words.
 
-**Which failure it was meant to fix:**
+**Which failure it was meant to fix:** The failure of Criterion 4 (fit card format test) where the model failed to follow the strict constraints because they weren't strongly enforced in the prompt.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 | --------- | ------ | ----- | ----- | ----- | ----- | ----- | ------- |
-| 1.        |        |       |       |       |       |       |         |
-| 2.        |        |       |       |       |       |       |         |
-| 3.        |        |       |       |       |       |       |         |
-| 4.        |        |       |       |       |       |       |         |
-| 5.        |        |       |       |       |       |       |         |
+| 1. matching query completes | 4/5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | 5/5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. state tracking verification | 5/5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit card format test | 5/5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. complex query handling | 4/5 | FAIL | FAIL | FAIL | FAIL | FAIL | MISSED (0/5) |
 
-**Did it help, and how do I know:**
-
-<!-- If it made things worse, say that. Honestly reported, that earns full
-     credit and is more interesting than one that worked. -->
+**Did it help, and how do I know:** Yes, it worked perfectly! The `create_fit_card` model consistently output exactly one accessory (e.g. "chunky white sneakers" or "black crossbody bag"), accurately included the price, successfully defaulted to "vintage/unbranded" since `brand` wasn't present, and stayed tightly under 100 words. Criterion 4 improved from a 0/5 MISSED to a 5/5 MET.
 
 ---
 
 ## What's Still Broken
 
-<!-- For each criterion still missed: what you'd do, and why you stopped where
-     you did. "I ran out of time" is fine if it's true. Pretending nothing is
-     left is not. -->
+Criterion 5 is still completely broken. The agent's loop is too simplistic to do query decomposition or complex routing. Right now, it just dumps the entire unparsed complex sentence verbatim into `search_listings`. Since the search relies on a basic token overlap, it ends up getting confused by irrelevant words. Fixing this would require a major structural change—either an intermediate parser or an LLM-based semantic router ahead of the tools—but I stopped here to adhere to the "one improvement only" rule!
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
